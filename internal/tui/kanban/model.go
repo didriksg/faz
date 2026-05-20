@@ -25,6 +25,23 @@ const (
 
 var typeFilterOptions = []string{"all", "task", "bug", "feature", "chore", "decision"}
 
+// Adaptive colors keep the kanban readable on both light and dark terminals.
+// Each Dark value is identical to the original hardcoded ANSI 256 code, so
+// dark terminals (and color-asserting tests) are unchanged; the Light value
+// is the readable equivalent picked when a light terminal is detected.
+var (
+	cardBg        = lipgloss.AdaptiveColor{Light: "254", Dark: "235"}
+	cardBgSel     = lipgloss.AdaptiveColor{Light: "250", Dark: "240"}
+	cardBorder    = lipgloss.AdaptiveColor{Light: "250", Dark: "238"}
+	cardBorderSel = lipgloss.AdaptiveColor{Light: "240", Dark: "246"}
+	cardTitle     = lipgloss.AdaptiveColor{Light: "235", Dark: "252"}
+	cardTitleSel  = lipgloss.AdaptiveColor{Light: "232", Dark: "230"}
+	cardMeta      = lipgloss.AdaptiveColor{Light: "240", Dark: "243"}
+	cardMetaSel   = lipgloss.AdaptiveColor{Light: "234", Dark: "251"}
+	modalBg       = lipgloss.AdaptiveColor{Light: "254", Dark: "235"}
+	modalFg       = lipgloss.AdaptiveColor{Light: "235", Dark: "252"}
+)
+
 type catalogLoadedMsg struct {
 	catalog Catalog
 	err     error
@@ -796,13 +813,13 @@ func (m Model) renderColumn(title string, issues []model.Issue, colIndex, width 
 }
 
 func (m Model) renderCard(issue model.Issue, selected bool, width int) string {
-	borderColor := lipgloss.Color("238")
-	bgColor := lipgloss.Color("235")
-	titleColor := lipgloss.Color("252")
+	borderColor := cardBorder
+	bgColor := cardBg
+	titleColor := cardTitle
 	if selected {
-		borderColor = lipgloss.Color("246")
-		bgColor = lipgloss.Color("240")
-		titleColor = lipgloss.Color("230")
+		borderColor = cardBorderSel
+		bgColor = cardBgSel
+		titleColor = cardTitleSel
 	}
 
 	meta := fmt.Sprintf("P%d • %s", issue.Priority, issue.Type)
@@ -829,9 +846,9 @@ func (m Model) renderCard(issue model.Issue, selected bool, width int) string {
 		MaxWidth(contentWidth).
 		Background(bgColor)
 	titleStyle := lineStyle.Foreground(titleColor).Bold(selected)
-	metaColor := lipgloss.Color("243")
+	metaColor := cardMeta
 	if selected {
-		metaColor = lipgloss.Color("251")
+		metaColor = cardMetaSel
 	}
 	metaStyle := lineStyle.Foreground(metaColor)
 
@@ -905,7 +922,8 @@ func (m Model) renderPicker() string {
 		Border(lipgloss.DoubleBorder()).
 		BorderForeground(lipgloss.Color("69")).
 		Padding(1, 2).
-		Background(lipgloss.Color("235")).
+		Background(modalBg).
+		Foreground(modalFg).
 		Render(strings.Join(lines, "\n"))
 	return box
 }
@@ -979,7 +997,8 @@ func (m Model) renderHelp() string {
 		Border(lipgloss.DoubleBorder()).
 		BorderForeground(lipgloss.Color("69")).
 		Padding(1, 2).
-		Background(lipgloss.Color("235")).
+		Background(modalBg).
+		Foreground(modalFg).
 		Render(strings.Join(lines, "\n"))
 	return box
 }
@@ -1000,7 +1019,8 @@ func (m Model) renderTypePicker() string {
 		Border(lipgloss.DoubleBorder()).
 		BorderForeground(lipgloss.Color("69")).
 		Padding(1, 2).
-		Background(lipgloss.Color("235")).
+		Background(modalBg).
+		Foreground(modalFg).
 		Render(strings.Join(lines, "\n"))
 	return box
 }
@@ -1028,7 +1048,8 @@ func (m Model) renderDetails() string {
 		Border(lipgloss.DoubleBorder()).
 		BorderForeground(lipgloss.Color("69")).
 		Padding(1, 2).
-		Background(lipgloss.Color("235")).
+		Background(modalBg).
+		Foreground(modalFg).
 		Render(strings.Join(visible, "\n"))
 	if boxHeight < modalFrameHeight {
 		return lipgloss.JoinVertical(lipgloss.Center, columnLabel, "", box)
